@@ -43,8 +43,9 @@ impl SolanaCookie {
         // This fails when warping is involved - https://gitmemory.com/issue/solana-labs/solana/18201/868325078
         // let recent_blockhash = self.context.banks_client.get_recent_blockhash().await.unwrap();
 
+        println!("Signing Transaction");
         transaction.sign(&all_signers, context.last_blockhash);
-
+        println!("processing with banks client");
         context
             .banks_client
             .process_transaction_with_commitment(

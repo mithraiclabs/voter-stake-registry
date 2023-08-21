@@ -1,5 +1,7 @@
 #![cfg(feature = "test-sbf")]
 
+use std::println;
+
 use anchor_spl::token::TokenAccount;
 use program_test::*;
 use solana_program_test::*;
@@ -16,6 +18,7 @@ async fn test_all_deposits() -> Result<(), TransportError> {
 
     let payer = &context.users[0].key;
     let realm_authority = Keypair::new();
+    println!("Creating testrealm");
     let realm = context
         .governance
         .create_realm(
