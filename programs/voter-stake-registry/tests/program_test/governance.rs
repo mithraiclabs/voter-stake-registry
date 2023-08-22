@@ -73,21 +73,6 @@ impl GovernanceCookie {
         )
         .0;
 
-        let new_account = Keypair::new();
-        let test_instruction = vec![solana_program::system_instruction::create_account(
-            &payer.pubkey(),
-            &new_account.pubkey(),
-            1_000_000_000,
-            1,
-            &payer.pubkey(),
-        )];
-        let signer = Keypair::from_base58_string(&payer.to_base58_string());
-
-        self.solana
-            .process_transaction(&test_instruction, Some(&[&signer, &new_account]))
-            .await
-            .unwrap();
-
         let instructions = vec![spl_governance::instruction::create_realm(
             &self.program_id,
             &realm_authority,
