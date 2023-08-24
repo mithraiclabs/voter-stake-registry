@@ -212,7 +212,6 @@ impl TestContext {
         }
 
         let mut context = test.start_with_context().await;
-        println!("Created context");
         let rent = context.banks_client.get_rent().await.unwrap();
 
         let solana = Arc::new(SolanaCookie {
