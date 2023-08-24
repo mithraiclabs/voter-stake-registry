@@ -805,6 +805,42 @@ impl AddinCookie {
             .await
             .unwrap();
     }
+
+    #[allow(dead_code)]
+    pub async fn accelerate_vesting(
+        &self,
+        registrar: &RegistrarCookie,
+        voter: &VoterCookie,
+        authority: &Keypair,
+        deposit_entry_index: u8,
+    ) -> Result<(), BanksClientError> {
+        let data =
+            anchor_lang::InstructionData::data(&voter_stake_registry::instruction::AccelerateVesting {
+                deposit_entry_index,
+            });
+
+        let accounts = anchor_lang::ToAccountMetas::to_account_metas(
+            &voter_stake_registry::accounts::AccelerateVesting {
+                registrar: registrar.address,
+                voter: voter.address,
+                voter_authority: authority.pubkey(),
+            },
+            None,
+        );
+
+        let instructions = vec![Instruction {
+            program_id: self.program_id,
+            accounts,
+            data,
+        }];
+
+        // clone the secrets
+        let signer = Keypair::from_base58_string(&authority.to_base58_string());
+
+        self.solana
+            .process_transaction(&instructions, Some(&[&signer]))
+            .await
+    }
 }
 
 impl VotingMintConfigCookie {

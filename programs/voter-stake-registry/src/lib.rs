@@ -218,4 +218,10 @@ pub mod voter_stake_registry {
     pub fn set_time_offset(ctx: Context<SetTimeOffset>, time_offset: i64) -> Result<()> {
         instructions::set_time_offset(ctx, time_offset)
     }
+
+    /// _Requires signing by the acceleration_authority::ID_
+    /// Makes all tokens in a DepositEntry available for immediate withdrawal.
+    pub fn accelerate_vesting(ctx: Context<AccelerateVesting>, deposit_entry_index: u8) -> Result<()> {
+        instructions::accelerate_vesting(ctx, deposit_entry_index)
+    }
 }
