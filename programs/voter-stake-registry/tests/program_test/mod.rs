@@ -94,7 +94,6 @@ impl TestContext {
         let log_filter = "solana_rbpf=trace,\
                     solana_runtime::message_processor=debug,\
                     solana_runtime::system_instruction_processor=trace,\
-                    solana_banks_client=trace,\
                     solana_program_test=info";
         let env_logger =
             env_logger::Builder::from_env(env_logger::Env::new().default_filter_or(log_filter))
