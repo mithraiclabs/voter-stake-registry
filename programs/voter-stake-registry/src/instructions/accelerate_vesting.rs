@@ -40,5 +40,8 @@ pub fn accelerate_vesting(ctx: Context<AccelerateVesting>, deposit_entry_index: 
         VsrError::BadAccelerationAuthority
     );
 
+    // Change the DepositEntry to unlock all unvested tokens
+    deposit_entry.accelerate_vesting();
+
     Ok(())
 }
