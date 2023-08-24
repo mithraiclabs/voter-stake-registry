@@ -1,12 +1,6 @@
-use crate::state::*;
 use crate::error::*;
+use crate::state::*;
 use anchor_lang::prelude::*;
-
-mod acceleration_authority {
-    use anchor_lang::declare_id;
-
-    declare_id!("ENSuopuKKCDgdmT6dXHqJSjeDjUoLXUNikr33e21bNtp");
-}
 
 #[derive(Accounts)]
 pub struct AccelerateVesting<'info> {
@@ -21,15 +15,30 @@ pub struct AccelerateVesting<'info> {
       has_one = registrar)]
     pub voter: AccountLoader<'info, Voter>,
     pub voter_authority: Signer<'info>,
-    #[account(
-      address = acceleration_authority::ID @ VsrError::BadAccelerationAuthority
-    )]
-    pub accelerated_authority: Signer<'info>,
+    /// Authority for making a grant to this voter account
+    ///
+    /// Instruction validates grant_authority is the VotingMintConfig.grant_authority or
+    /// Registrar.realm_authority.
+    pub grant_authority: Signer<'info>,
 }
 
-pub fn accelerate_vesting(
-    _ctx: Context<AccelerateVesting>,
-    _deposit_entry_index: u8,
-) -> Result<()> {
+pub fn accelerate_vesting(ctx: Context<AccelerateVesting>, deposit_entry_index: u8) -> Result<()> {
+    // Load accounts.
+    let registrar = &ctx.accounts.registrar.load()?;
+    let voter = &mut ctx.accounts.voter.load_mut()?;
+
+    let deposit_entry = voter.active_deposit_mut(deposit_entry_index)?;
+    // Get the grant_authority for the DepositEntry
+    let mint_idx = deposit_entry.voting_mint_config_idx;
+    let mint_config: &VotingMintConfig = &registrar.voting_mints[mint_idx as usize];
+    let grant_authority = ctx.accounts.grant_authority.key();
+
+    // Validate grant_authority is appropriate to accelerate vesting
+    require!(
+        grant_authority == registrar.realm_authority
+            || grant_authority == mint_config.grant_authority,
+        VsrError::BadAccelerationAuthority
+    );
+
     Ok(())
 }

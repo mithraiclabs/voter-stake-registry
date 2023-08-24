@@ -811,7 +811,8 @@ impl AddinCookie {
         &self,
         registrar: &RegistrarCookie,
         voter: &VoterCookie,
-        authority: &Keypair,
+        voter_authority: &Keypair,
+        grant_authority: &Keypair,
         deposit_entry_index: u8,
     ) -> Result<(), BanksClientError> {
         let data =
@@ -823,7 +824,8 @@ impl AddinCookie {
             &voter_stake_registry::accounts::AccelerateVesting {
                 registrar: registrar.address,
                 voter: voter.address,
-                voter_authority: authority.pubkey(),
+                voter_authority: voter_authority.pubkey(),
+                grant_authority: grant_authority.pubkey(),
             },
             None,
         );
@@ -835,10 +837,11 @@ impl AddinCookie {
         }];
 
         // clone the secrets
-        let signer = Keypair::from_base58_string(&authority.to_base58_string());
+        let voter_secret = Keypair::from_base58_string(&voter_authority.to_base58_string());
+        let grant_authority_secret = Keypair::from_base58_string(&grant_authority.to_base58_string());
 
         self.solana
-            .process_transaction(&instructions, Some(&[&signer]))
+            .process_transaction(&instructions, Some(&[&voter_secret, &grant_authority_secret]))
             .await
     }
 }

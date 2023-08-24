@@ -58,3 +58,36 @@ pub async fn get_lockup_data(
         d.amount_unlocked(now),
     )
 }
+
+#[derive(Debug, PartialEq)]
+pub struct LockupData {
+    /// time since lockup start (saturating at "duration")
+    pub time_passed: u64,
+    /// duration of lockup
+    pub duration: u64,
+    pub amount_initially_locked_native: u64,
+    pub amount_deposited_native: u64,
+    pub amount_unlocked: u64
+}
+
+#[allow(dead_code)]
+pub async fn get_lockup_data_struct(
+    solana: &SolanaCookie,
+    voter: Pubkey,
+    index: u8,
+    time_offset: i64,
+) -> LockupData {
+    let now = solana.get_clock().await.unix_timestamp + time_offset;
+    let voter = solana
+        .get_account::<voter_stake_registry::state::Voter>(voter)
+        .await;
+    let d = voter.deposits[index as usize];
+    let duration = d.lockup.periods_total().unwrap() * d.lockup.kind.period_secs();
+    LockupData {
+        time_passed: (duration - d.lockup.seconds_left(now)) as u64,
+        duration,
+        amount_initially_locked_native: d.amount_initially_locked_native,
+        amount_deposited_native: d.amount_deposited_native,
+        amount_unlocked: d.amount_unlocked(now),
+    }
+}
