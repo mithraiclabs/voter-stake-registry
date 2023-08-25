@@ -67,7 +67,7 @@ pub struct LockupData {
     pub duration: u64,
     pub amount_initially_locked_native: u64,
     pub amount_deposited_native: u64,
-    pub amount_unlocked: u64
+    pub amount_unlocked: u64,
 }
 
 #[allow(dead_code)]

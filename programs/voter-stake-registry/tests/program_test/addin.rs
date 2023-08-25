@@ -815,10 +815,11 @@ impl AddinCookie {
         grant_authority: &Keypair,
         deposit_entry_index: u8,
     ) -> Result<(), BanksClientError> {
-        let data =
-            anchor_lang::InstructionData::data(&voter_stake_registry::instruction::AccelerateVesting {
+        let data = anchor_lang::InstructionData::data(
+            &voter_stake_registry::instruction::AccelerateVesting {
                 deposit_entry_index,
-            });
+            },
+        );
 
         let accounts = anchor_lang::ToAccountMetas::to_account_metas(
             &voter_stake_registry::accounts::AccelerateVesting {
@@ -838,10 +839,14 @@ impl AddinCookie {
 
         // clone the secrets
         let voter_secret = Keypair::from_base58_string(&voter_authority.to_base58_string());
-        let grant_authority_secret = Keypair::from_base58_string(&grant_authority.to_base58_string());
+        let grant_authority_secret =
+            Keypair::from_base58_string(&grant_authority.to_base58_string());
 
         self.solana
-            .process_transaction(&instructions, Some(&[&voter_secret, &grant_authority_secret]))
+            .process_transaction(
+                &instructions,
+                Some(&[&voter_secret, &grant_authority_secret]),
+            )
             .await
     }
 }

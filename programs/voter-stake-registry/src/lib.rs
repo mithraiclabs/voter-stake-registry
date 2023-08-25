@@ -221,7 +221,10 @@ pub mod voter_stake_registry {
 
     /// _Requires signing by the VotingMintConfig.grant_authority or Registrar.realm_authority_
     /// Makes all tokens in a DepositEntry available for immediate withdrawal.
-    pub fn accelerate_vesting(ctx: Context<AccelerateVesting>, deposit_entry_index: u8) -> Result<()> {
+    pub fn accelerate_vesting(
+        ctx: Context<AccelerateVesting>,
+        deposit_entry_index: u8,
+    ) -> Result<()> {
         instructions::accelerate_vesting(ctx, deposit_entry_index)
     }
 }
