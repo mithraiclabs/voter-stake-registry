@@ -119,4 +119,7 @@ pub enum VsrError {
     // 6038 / 0x1796
     #[msg("")]
     BadUnlockDepositAuthority,
+    // 6039 / 0x1797
+    #[msg("")]
+    MintConfigNotUsed,
 }

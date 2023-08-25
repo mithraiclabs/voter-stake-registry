@@ -33,10 +33,14 @@ pub fn unlock_deposit(ctx: Context<UnlockDeposit>, deposit_entry_index: u8) -> R
     let mint_config: &VotingMintConfig = &registrar.voting_mints[mint_idx as usize];
     let grant_authority = ctx.accounts.grant_authority.key();
 
+    // Validate the VotingMintConfig was initialized and is in use
+    require!(mint_config.in_use(), VsrError::MintConfigNotUsed);
+
     // Validate grant_authority is appropriate to unlock deposit
     require!(
-        grant_authority == registrar.realm_authority
-            || grant_authority == mint_config.grant_authority,
+        (grant_authority == registrar.realm_authority
+            || grant_authority == mint_config.grant_authority)
+            && grant_authority != Pubkey::default(),
         VsrError::BadUnlockDepositAuthority
     );
 
