@@ -89,9 +89,8 @@ async fn test_unlock_deposit() -> Result<(), TransportError> {
         )
     };
     let time_offset = Arc::new(RefCell::new(0i64));
-    let lockup_status = |index: u8| {
-        get_lockup_data_struct(&context.solana, voter.address, index, *time_offset.borrow())
-    };
+    let lockup_status =
+        |index: u8| get_lockup_data(&context.solana, voter.address, index, *time_offset.borrow());
 
     let day = 24 * 60 * 60;
 

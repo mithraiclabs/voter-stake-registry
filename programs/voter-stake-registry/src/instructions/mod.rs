@@ -1,4 +1,3 @@
-pub use unlock_deposit::*;
 pub use clawback::*;
 pub use close_deposit_entry::*;
 pub use close_voter::*;
@@ -13,11 +12,11 @@ pub use internal_transfer_unlocked::*;
 pub use log_voter_info::*;
 pub use reset_lockup::*;
 pub use set_time_offset::*;
+pub use unlock_deposit::*;
 pub use update_max_vote_weight::*;
 pub use update_voter_weight_record::*;
 pub use withdraw::*;
 
-mod unlock_deposit;
 mod clawback;
 mod close_deposit_entry;
 mod close_voter;
@@ -32,6 +31,7 @@ mod internal_transfer_unlocked;
 mod log_voter_info;
 mod reset_lockup;
 mod set_time_offset;
+mod unlock_deposit;
 mod update_max_vote_weight;
 mod update_voter_weight_record;
 mod withdraw;

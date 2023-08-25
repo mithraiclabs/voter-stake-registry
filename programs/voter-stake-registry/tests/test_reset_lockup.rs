@@ -109,24 +109,78 @@ async fn test_reset_lockup() -> Result<(), TransportError> {
         .await
         .unwrap();
     deposit(7, 80).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 3 * day, 80, 80, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 3 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 0
+        }
+    );
     deposit(7, 10).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 3 * day, 90, 90, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 3 * day,
+            amount_initially_locked_native: 90,
+            amount_deposited_native: 90,
+            amount_unlocked: 0
+        }
+    );
     reset_lockup(7, 2, LockupKind::Daily)
         .await
         .expect_err("can't relock for less periods");
     reset_lockup(7, 3, LockupKind::Daily).await.unwrap(); // just resets start to current timestamp
-    assert_eq!(lockup_status(7).await, (0, 3 * day, 90, 90, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 3 * day,
+            amount_initially_locked_native: 90,
+            amount_deposited_native: 90,
+            amount_unlocked: 0
+        }
+    );
 
     // advance more than a day
     advance_time(day + hour).await;
     context.solana.advance_clock_by_slots(2).await;
 
-    assert_eq!(lockup_status(7).await, (day + hour, 3 * day, 90, 90, 30));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: day + hour,
+            duration: 3 * day,
+            amount_initially_locked_native: 90,
+            amount_deposited_native: 90,
+            amount_unlocked: 30
+        }
+    );
     deposit(7, 10).await.unwrap();
-    assert_eq!(lockup_status(7).await, (hour, 2 * day, 70, 100, 30));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: hour,
+            duration: 2 * day,
+            amount_initially_locked_native: 70,
+            amount_deposited_native: 100,
+            amount_unlocked: 30
+        }
+    );
     reset_lockup(7, 10, LockupKind::Daily).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 10 * day, 100, 100, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 10 * day,
+            amount_initially_locked_native: 100,
+            amount_deposited_native: 100,
+            amount_unlocked: 0
+        }
+    );
 
     // advance four more days
     advance_time(4 * day + hour).await;
@@ -134,20 +188,50 @@ async fn test_reset_lockup() -> Result<(), TransportError> {
 
     assert_eq!(
         lockup_status(7).await,
-        (4 * day + hour, 10 * day, 100, 100, 40)
+        LockupData {
+            time_passed: 4 * day + hour,
+            duration: 10 * day,
+            amount_initially_locked_native: 100,
+            amount_deposited_native: 100,
+            amount_unlocked: 40
+        }
     );
     withdraw(7, 20).await.unwrap(); // partially withdraw vested
     assert_eq!(
         lockup_status(7).await,
-        (4 * day + hour, 10 * day, 100, 80, 20)
+        LockupData {
+            time_passed: 4 * day + hour,
+            duration: 10 * day,
+            amount_initially_locked_native: 100,
+            amount_deposited_native: 80,
+            amount_unlocked: 20
+        }
     );
     reset_lockup(7, 5, LockupKind::Daily)
         .await
         .expect_err("can't relock for less periods");
     reset_lockup(7, 6, LockupKind::Daily).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 6 * day, 80, 80, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 6 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 0
+        }
+    );
     reset_lockup(7, 8, LockupKind::Daily).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 8 * day, 80, 80, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 8 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 0
+        }
+    );
 
     // advance three more days
     advance_time(3 * day + hour).await;
@@ -155,20 +239,62 @@ async fn test_reset_lockup() -> Result<(), TransportError> {
 
     assert_eq!(
         lockup_status(7).await,
-        (3 * day + hour, 8 * day, 80, 80, 30)
+        LockupData {
+            time_passed: 3 * day + hour,
+            duration: 8 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 30
+        }
     );
     deposit(7, 10).await.unwrap();
-    assert_eq!(lockup_status(7).await, (hour, 5 * day, 60, 90, 30));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: hour,
+            duration: 5 * day,
+            amount_initially_locked_native: 60,
+            amount_deposited_native: 90,
+            amount_unlocked: 30
+        }
+    );
 
     context.solana.advance_clock_by_slots(2).await; // avoid deposit and withdraw in one slot
 
     withdraw(7, 20).await.unwrap(); // partially withdraw vested
-    assert_eq!(lockup_status(7).await, (hour, 5 * day, 60, 70, 10));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: hour,
+            duration: 5 * day,
+            amount_initially_locked_native: 60,
+            amount_deposited_native: 70,
+            amount_unlocked: 10
+        }
+    );
     reset_lockup(7, 10, LockupKind::Daily).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 10 * day, 70, 70, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 10 * day,
+            amount_initially_locked_native: 70,
+            amount_deposited_native: 70,
+            amount_unlocked: 0
+        }
+    );
 
     reset_lockup(7, 1, LockupKind::Monthly).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 1 * month, 70, 70, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 1 * month,
+            amount_initially_locked_native: 70,
+            amount_deposited_native: 70,
+            amount_unlocked: 0
+        }
+    );
 
     reset_lockup(7, 31, LockupKind::Daily)
         .await
@@ -180,7 +306,16 @@ async fn test_reset_lockup() -> Result<(), TransportError> {
         .await
         .expect_err("period shortnend");
     reset_lockup(7, 31, LockupKind::Cliff).await.unwrap();
-    assert_eq!(lockup_status(7).await, (0, 31 * day, 70, 70, 0));
+    assert_eq!(
+        lockup_status(7).await,
+        LockupData {
+            time_passed: 0,
+            duration: 31 * day,
+            amount_initially_locked_native: 70,
+            amount_deposited_native: 70,
+            amount_unlocked: 0
+        }
+    );
 
     // tests for cliff vesting
     addin
@@ -198,37 +333,127 @@ async fn test_reset_lockup() -> Result<(), TransportError> {
         .await
         .unwrap();
     deposit(5, 80).await.unwrap();
-    assert_eq!(lockup_status(5).await, (0, 3 * day, 80, 80, 0));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 0,
+            duration: 3 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 0
+        }
+    );
     reset_lockup(5, 2, LockupKind::Cliff)
         .await
         .expect_err("can't relock for less periods");
     reset_lockup(5, 3, LockupKind::Cliff).await.unwrap(); // just resets start to current timestamp
-    assert_eq!(lockup_status(5).await, (0, 3 * day, 80, 80, 0));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 0,
+            duration: 3 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 0
+        }
+    );
     reset_lockup(5, 4, LockupKind::Cliff).await.unwrap();
-    assert_eq!(lockup_status(5).await, (0, 4 * day, 80, 80, 0));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 0,
+            duration: 4 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 0
+        }
+    );
 
     // advance to end of cliff
     advance_time(4 * day + hour).await;
     context.solana.advance_clock_by_slots(2).await;
 
-    assert_eq!(lockup_status(5).await, (4 * day, 4 * day, 80, 80, 80));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 4 * day,
+            duration: 4 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 80
+        }
+    );
     reset_lockup(5, 1, LockupKind::Cliff).await.unwrap();
-    assert_eq!(lockup_status(5).await, (0, 1 * day, 80, 80, 0));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 0,
+            duration: 1 * day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 0
+        }
+    );
     withdraw(5, 10).await.expect_err("nothing unlocked");
 
     // advance to end of cliff again
     advance_time(day + hour).await;
     context.solana.advance_clock_by_slots(2).await;
 
-    assert_eq!(lockup_status(5).await, (day, day, 80, 80, 80));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: day,
+            duration: day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 80,
+            amount_unlocked: 80
+        }
+    );
     withdraw(5, 10).await.unwrap();
-    assert_eq!(lockup_status(5).await, (day, day, 80, 70, 70));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: day,
+            duration: day,
+            amount_initially_locked_native: 80,
+            amount_deposited_native: 70,
+            amount_unlocked: 70
+        }
+    );
     deposit(5, 5).await.unwrap();
-    assert_eq!(lockup_status(5).await, (0, 0, 5, 75, 75));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 0,
+            duration: 0,
+            amount_initially_locked_native: 5,
+            amount_deposited_native: 75,
+            amount_unlocked: 75
+        }
+    );
     reset_lockup(5, 1, LockupKind::Cliff).await.unwrap();
-    assert_eq!(lockup_status(5).await, (0, 1 * day, 75, 75, 0));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 0,
+            duration: 1 * day,
+            amount_initially_locked_native: 75,
+            amount_deposited_native: 75,
+            amount_unlocked: 0
+        }
+    );
     deposit(5, 15).await.unwrap();
-    assert_eq!(lockup_status(5).await, (0, 1 * day, 90, 90, 0));
+    assert_eq!(
+        lockup_status(5).await,
+        LockupData {
+            time_passed: 0,
+            duration: 1 * day,
+            amount_initially_locked_native: 90,
+            amount_deposited_native: 90,
+            amount_unlocked: 0
+        }
+    );
 
     Ok(())
 }
