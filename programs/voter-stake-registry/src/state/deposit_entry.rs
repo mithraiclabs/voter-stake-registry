@@ -378,7 +378,7 @@ impl DepositEntry {
     }
 
     /// Makes all unvested tokens vested. Changes the LockUp to None
-    pub fn accelerate_vesting(&mut self) {
+    pub fn unlock_deposit(&mut self) {
         self.lockup = Lockup::default();
     }
 }

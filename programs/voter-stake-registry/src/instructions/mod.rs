@@ -1,4 +1,4 @@
-pub use accelerate_vesting::*;
+pub use unlock_deposit::*;
 pub use clawback::*;
 pub use close_deposit_entry::*;
 pub use close_voter::*;
@@ -17,7 +17,7 @@ pub use update_max_vote_weight::*;
 pub use update_voter_weight_record::*;
 pub use withdraw::*;
 
-mod accelerate_vesting;
+mod unlock_deposit;
 mod clawback;
 mod close_deposit_entry;
 mod close_voter;

@@ -118,5 +118,5 @@ pub enum VsrError {
     InvalidTimestampArguments,
     // 6038 / 0x1796
     #[msg("")]
-    BadAccelerationAuthority,
+    BadUnlockDepositAuthority,
 }

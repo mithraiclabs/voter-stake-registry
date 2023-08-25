@@ -3,7 +3,7 @@ use crate::state::*;
 use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
-pub struct AccelerateVesting<'info> {
+pub struct UnlockDeposit<'info> {
     pub registrar: AccountLoader<'info, Registrar>,
     // checking the PDA address it just an extra precaution,
     // the other constraints must be exhaustive
@@ -22,7 +22,7 @@ pub struct AccelerateVesting<'info> {
     pub grant_authority: Signer<'info>,
 }
 
-pub fn accelerate_vesting(ctx: Context<AccelerateVesting>, deposit_entry_index: u8) -> Result<()> {
+pub fn unlock_deposit(ctx: Context<UnlockDeposit>, deposit_entry_index: u8) -> Result<()> {
     // Load accounts.
     let registrar = &ctx.accounts.registrar.load()?;
     let voter = &mut ctx.accounts.voter.load_mut()?;
@@ -33,15 +33,15 @@ pub fn accelerate_vesting(ctx: Context<AccelerateVesting>, deposit_entry_index: 
     let mint_config: &VotingMintConfig = &registrar.voting_mints[mint_idx as usize];
     let grant_authority = ctx.accounts.grant_authority.key();
 
-    // Validate grant_authority is appropriate to accelerate vesting
+    // Validate grant_authority is appropriate to unlock deposit
     require!(
         grant_authority == registrar.realm_authority
             || grant_authority == mint_config.grant_authority,
-        VsrError::BadAccelerationAuthority
+        VsrError::BadUnlockDepositAuthority
     );
 
     // Change the DepositEntry to unlock all unvested tokens
-    deposit_entry.accelerate_vesting();
+    deposit_entry.unlock_deposit();
 
     Ok(())
 }

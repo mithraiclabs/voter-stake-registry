@@ -10,7 +10,7 @@ mod program_test;
 
 #[allow(unaligned_references)]
 #[tokio::test]
-async fn test_accelerated_vesting() -> Result<(), TransportError> {
+async fn test_unlock_deposit() -> Result<(), TransportError> {
     let context = TestContext::new().await;
     let addin = &context.addin;
 
@@ -79,8 +79,8 @@ async fn test_accelerated_vesting() -> Result<(), TransportError> {
         )
     };
 
-    let accelerate_vesting = |index: u8| {
-        addin.accelerate_vesting(
+    let unlock_deposit = |index: u8| {
+        addin.unlock_deposit(
             &registrar,
             &voter,
             &voter_authority,
@@ -123,7 +123,7 @@ async fn test_accelerated_vesting() -> Result<(), TransportError> {
         }
     );
     addin
-        .accelerate_vesting(
+        .unlock_deposit(
             &registrar,
             &voter,
             &voter_authority,
@@ -131,7 +131,7 @@ async fn test_accelerated_vesting() -> Result<(), TransportError> {
             deposit_entry_index,
         )
         .await
-        .expect_err("BadAccelerationAuthority");
+        .expect_err("BadUnlockDepositAuthority");
 
     // tests for daily vesting
     let deposit_entry_index = 2;
@@ -172,7 +172,7 @@ async fn test_accelerated_vesting() -> Result<(), TransportError> {
         }
     );
 
-    accelerate_vesting(deposit_entry_index).await?;
+    unlock_deposit(deposit_entry_index).await?;
     assert_eq!(
         lockup_status(deposit_entry_index).await,
         LockupData {

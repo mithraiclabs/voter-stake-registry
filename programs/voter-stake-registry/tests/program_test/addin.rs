@@ -807,7 +807,7 @@ impl AddinCookie {
     }
 
     #[allow(dead_code)]
-    pub async fn accelerate_vesting(
+    pub async fn unlock_deposit(
         &self,
         registrar: &RegistrarCookie,
         voter: &VoterCookie,
@@ -816,13 +816,13 @@ impl AddinCookie {
         deposit_entry_index: u8,
     ) -> Result<(), BanksClientError> {
         let data = anchor_lang::InstructionData::data(
-            &voter_stake_registry::instruction::AccelerateVesting {
+            &voter_stake_registry::instruction::UnlockDeposit {
                 deposit_entry_index,
             },
         );
 
         let accounts = anchor_lang::ToAccountMetas::to_account_metas(
-            &voter_stake_registry::accounts::AccelerateVesting {
+            &voter_stake_registry::accounts::UnlockDeposit {
                 registrar: registrar.address,
                 voter: voter.address,
                 voter_authority: voter_authority.pubkey(),
