@@ -44,7 +44,7 @@ impl SolanaCookie {
         transaction.sign(&all_signers, recent_blockhash);
         context
             .banks_client
-            .process_transaction_with_preflight_and_commitment(
+            .process_transaction_with_commitment(
                 transaction,
                 solana_sdk::commitment_config::CommitmentLevel::Processed,
             )
