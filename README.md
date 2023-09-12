@@ -69,7 +69,7 @@ Before compiling, look at:
 
 For testing purposes, an instance of voter-stake-registry is deployed on devnet:
 ```
-voter-stake-registry:  4Q6WW2ouZ6V3iaNm56MTd5n2tnTm4C5fiH8miFHnAFHo
+voter-stake-registry:  VotEn9AWwTFtJPJSMV5F9jsMY6QwWM5qn3XP9PATGW7
 spl-governance master: i7BqPFNUvB7yqwVeCRJHrtZVwRsZZNUJTdBm7Vg2cDb
 ```
 

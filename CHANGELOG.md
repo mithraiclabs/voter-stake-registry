@@ -32,5 +32,5 @@
 ## v0.2.0 - 2022-2-14 - mainnet deploy slot 121129331
 
 - First release.
-- Available on devnet at 4Q6WW2ouZ6V3iaNm56MTd5n2tnTm4C5fiH8miFHnAFHo
+- Available on devnet at VotEn9AWwTFtJPJSMV5F9jsMY6QwWM5qn3XP9PATGW7
 - In use by the Mango DAO on mainnet at the same address.
